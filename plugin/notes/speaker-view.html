@@ -418,7 +418,7 @@
 							// Send a message back to notify that the handshake is complete
 							window.opener.postMessage( JSON.stringify({ namespace: 'reveal-notes', type: 'connected'} ), '*' );
 						}
-						else if( /slidechanged|fragmentshown|fragmenthidden|paused|resumed/.test( data.eventName ) && currentState !== JSON.stringify( data.state ) ) {
+						else if( /slidechanged|fragmentshown|fragmenthidden|fragmentcurrent|paused|resumed/.test( data.eventName ) && currentState !== JSON.stringify( data.state ) ) {
 
 							dispatchStateToMainWindow( data.state );
 

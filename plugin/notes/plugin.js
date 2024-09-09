@@ -25,16 +25,16 @@ const Plugin = () => {
 	function openSpeakerWindow() {
 
 		// If a window is already open, focus it
-		if( speakerWindow && !speakerWindow.closed ) {
+		if (speakerWindow && !speakerWindow.closed) {
 			speakerWindow.focus();
 		}
 		else {
-			speakerWindow = window.open( 'about:blank', 'reveal.js - Notes', 'width=1100,height=700' );
+			speakerWindow = window.open('about:blank', 'reveal.js - Notes', 'width=1100,height=700');
 			speakerWindow.marked = marked;
-			speakerWindow.document.write( speakerViewHTML );
+			speakerWindow.document.write(speakerViewHTML);
 
-			if( !speakerWindow ) {
-				alert( 'Speaker view popup failed to open. Please make sure popups are allowed and reopen the speaker view.' );
+			if (!speakerWindow) {
+				alert('Speaker view popup failed to open. Please make sure popups are allowed and reopen the speaker view.');
 				return;
 			}
 
@@ -46,14 +46,14 @@ const Plugin = () => {
 	/**
 	 * Reconnect with an existing speaker view window.
 	 */
-	function reconnectSpeakerWindow( reconnectWindow ) {
+	function reconnectSpeakerWindow(reconnectWindow) {
 
-		if( speakerWindow && !speakerWindow.closed ) {
+		if (speakerWindow && !speakerWindow.closed) {
 			speakerWindow.focus();
 		}
 		else {
 			speakerWindow = reconnectWindow;
-			window.addEventListener( 'message', onPostMessage );
+			window.addEventListener('message', onPostMessage);
 			onConnected();
 		}
 
@@ -70,19 +70,19 @@ const Plugin = () => {
 		const presentationURL = deck.getConfig().url;
 
 		const url = typeof presentationURL === 'string' ? presentationURL :
-								window.location.protocol + '//' + window.location.host + window.location.pathname + window.location.search;
+			window.location.protocol + '//' + window.location.host + window.location.pathname + window.location.search;
 
 		// Keep trying to connect until we get a 'connected' message back
-		connectInterval = setInterval( function() {
-			speakerWindow.postMessage( JSON.stringify( {
+		connectInterval = setInterval(function () {
+			speakerWindow.postMessage(JSON.stringify({
 				namespace: 'reveal-notes',
 				type: 'connect',
 				state: deck.getState(),
 				url
-			} ), '*' );
-		}, 500 );
+			}), '*');
+		}, 500);
 
-		window.addEventListener( 'message', onPostMessage );
+		window.addEventListener('message', onPostMessage);
 
 	}
 
@@ -90,26 +90,26 @@ const Plugin = () => {
 	 * Calls the specified Reveal.js method with the provided argument
 	 * and then pushes the result to the notes frame.
 	 */
-	function callRevealApi( methodName, methodArguments, callId ) {
+	function callRevealApi(methodName, methodArguments, callId) {
 
-		let result = deck[methodName].apply( deck, methodArguments );
-		speakerWindow.postMessage( JSON.stringify( {
+		let result = deck[methodName].apply(deck, methodArguments);
+		speakerWindow.postMessage(JSON.stringify({
 			namespace: 'reveal-notes',
 			type: 'return',
 			result,
 			callId
-		} ), '*' );
+		}), '*');
 
 	}
 
 	/**
 	 * Posts the current slide data to the notes window.
 	 */
-	function post( event ) {
+	function post(event) {
 
 		let slideElement = deck.getCurrentSlide(),
-			notesElements = slideElement.querySelectorAll( 'aside.notes' ),
-			fragmentElement = slideElement.querySelector( '.current-fragment' );
+			notesElements = slideElement.querySelectorAll('aside.notes'),
+			fragmentElement = slideElement.querySelector('.current-fragment');
 
 		let messageData = {
 			namespace: 'reveal-notes',
@@ -121,23 +121,23 @@ const Plugin = () => {
 		};
 
 		// Look for notes defined in a slide attribute
-		if( slideElement.hasAttribute( 'data-notes' ) ) {
-			messageData.notes = slideElement.getAttribute( 'data-notes' );
+		if (slideElement.hasAttribute('data-notes')) {
+			messageData.notes = slideElement.getAttribute('data-notes');
 			messageData.whitespace = 'pre-wrap';
 		}
 
 		// Look for notes defined in a fragment
-		if( fragmentElement ) {
-			let fragmentNotes = fragmentElement.querySelector( 'aside.notes' );
-			if( fragmentNotes ) {
+		if (fragmentElement) {
+			let fragmentNotes = fragmentElement.querySelector('aside.notes');
+			if (fragmentNotes) {
 				messageData.notes = fragmentNotes.innerHTML;
-				messageData.markdown = typeof fragmentNotes.getAttribute( 'data-markdown' ) === 'string';
+				messageData.markdown = typeof fragmentNotes.getAttribute('data-markdown') === 'string';
 
 				// Ignore other slide notes
 				notesElements = null;
 			}
-			else if( fragmentElement.hasAttribute( 'data-notes' ) ) {
-				messageData.notes = fragmentElement.getAttribute( 'data-notes' );
+			else if (fragmentElement.hasAttribute('data-notes')) {
+				messageData.notes = fragmentElement.getAttribute('data-notes');
 				messageData.whitespace = 'pre-wrap';
 
 				// In case there are slide notes
@@ -146,16 +146,16 @@ const Plugin = () => {
 		}
 
 		// Look for notes defined in an aside element
-		if( notesElements && notesElements.length ) {
+		if (notesElements && notesElements.length) {
 			// Ignore notes inside of fragments since those are shown
 			// individually when stepping through fragments
-			notesElements = Array.from( notesElements ).filter( notesElement => notesElement.closest( '.fragment' ) === null );
+			notesElements = Array.from(notesElements).filter(notesElement => notesElement.closest('.fragment') === null);
 
-			messageData.notes = notesElements.map( notesElement => notesElement.innerHTML ).join( '\n' );
-			messageData.markdown = notesElements[0] && typeof notesElements[0].getAttribute( 'data-markdown' ) === 'string';
+			messageData.notes = notesElements.map(notesElement => notesElement.innerHTML).join('\n');
+			messageData.markdown = notesElements[0] && typeof notesElements[0].getAttribute('data-markdown') === 'string';
 		}
 
-		speakerWindow.postMessage( JSON.stringify( messageData ), '*' );
+		speakerWindow.postMessage(JSON.stringify(messageData), '*');
 
 	}
 
@@ -163,33 +163,33 @@ const Plugin = () => {
 	 * Check if the given event is from the same origin as the
 	 * current window.
 	 */
-	function isSameOriginEvent( event ) {
+	function isSameOriginEvent(event) {
 
 		try {
 			return window.location.origin === event.source.location.origin;
 		}
-		catch ( error ) {
+		catch (error) {
 			return false;
 		}
 
 	}
 
-	function onPostMessage( event ) {
+	function onPostMessage(event) {
 
 		// Only allow same-origin messages
 		// (added 12/5/22 as a XSS safeguard)
-		if( isSameOriginEvent( event ) ) {
+		if (isSameOriginEvent(event)) {
 
 			try {
-				let data = JSON.parse( event.data );
-				if( data && data.namespace === 'reveal-notes' && data.type === 'connected' ) {
-					clearInterval( connectInterval );
+				let data = JSON.parse(event.data);
+				if (data && data.namespace === 'reveal-notes' && data.type === 'connected') {
+					clearInterval(connectInterval);
 					onConnected();
 				}
-				else if( data && data.namespace === 'reveal-notes' && data.type === 'call' ) {
-					callRevealApi( data.methodName, data.arguments, data.callId );
+				else if (data && data.namespace === 'reveal-notes' && data.type === 'call') {
+					callRevealApi(data.methodName, data.arguments, data.callId);
 				}
-		  } catch (e) {}
+			} catch (e) { }
 
 		}
 
@@ -202,13 +202,14 @@ const Plugin = () => {
 	function onConnected() {
 
 		// Monitor events that trigger a change in state
-		deck.on( 'slidechanged', post );
-		deck.on( 'fragmentshown', post );
-		deck.on( 'fragmenthidden', post );
-		deck.on( 'overviewhidden', post );
-		deck.on( 'overviewshown', post );
-		deck.on( 'paused', post );
-		deck.on( 'resumed', post );
+		deck.on('slidechanged', post);
+		deck.on('fragmentshown', post);
+		deck.on('fragmenthidden', post);
+		deck.on('fragmentcurrent', post);
+		deck.on('overviewhidden', post);
+		deck.on('overviewshown', post);
+		deck.on('paused', post);
+		deck.on('resumed', post);
 
 		// Post the initial state
 		post();
@@ -218,14 +219,14 @@ const Plugin = () => {
 	return {
 		id: 'notes',
 
-		init: function( reveal ) {
+		init: function (reveal) {
 
 			deck = reveal;
 
-			if( !/receiver/i.test( window.location.search ) ) {
+			if (!/receiver/i.test(window.location.search)) {
 
 				// If the there's a 'notes' query set, open directly
-				if( window.location.search.match( /(\?|\&)notes/gi ) !== null ) {
+				if (window.location.search.match(/(\?|\&)notes/gi) !== null) {
 					openSpeakerWindow();
 				}
 				else {
@@ -233,27 +234,27 @@ const Plugin = () => {
 					// heartbeat from an orphaned window, reconnect it. This ensures
 					// that we remain connected to the notes even if the presentation
 					// is reloaded.
-					window.addEventListener( 'message', event => {
+					window.addEventListener('message', event => {
 
-						if( !speakerWindow && typeof event.data === 'string' ) {
+						if (!speakerWindow && typeof event.data === 'string') {
 							let data;
 
 							try {
-								data = JSON.parse( event.data );
+								data = JSON.parse(event.data);
 							}
-							catch( error ) {}
+							catch (error) { }
 
-							if( data && data.namespace === 'reveal-notes' && data.type === 'heartbeat' ) {
-								reconnectSpeakerWindow( event.source );
+							if (data && data.namespace === 'reveal-notes' && data.type === 'heartbeat') {
+								reconnectSpeakerWindow(event.source);
 							}
 						}
 					});
 				}
 
 				// Open the notes when the 's' key is hit
-				deck.addKeyBinding({keyCode: 83, key: 'S', description: 'Speaker notes view'}, function() {
+				deck.addKeyBinding({ keyCode: 83, key: 'S', description: 'Speaker notes view' }, function () {
 					openSpeakerWindow();
-				} );
+				});
 
 			}
 
