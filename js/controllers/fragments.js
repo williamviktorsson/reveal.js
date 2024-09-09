@@ -215,7 +215,6 @@ export default class Fragments {
 						if (i === index) {
 							// Announce the fragments one by one to the Screen Reader
 							this.Reveal.announceStatus(this.Reveal.getStatusText(el));
-							console.log(el)
 							el.classList.add('current-fragment');
 							this.Reveal.slideContent.startEmbeddedContent(el);
 							current_fragment_after_change = el
