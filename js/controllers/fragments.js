@@ -217,9 +217,10 @@ export default class Fragments {
 							el.classList.add('current-fragment');
 							this.Reveal.slideContent.startEmbeddedContent(el);
 							this.Reveal.dispatchEvent({
-								target: el,
 								type: 'fragmentcurrent',
-								bubbles: false
+								data: {
+									fragment: el,
+								}
 							});
 						}
 
