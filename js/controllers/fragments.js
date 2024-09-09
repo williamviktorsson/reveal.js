@@ -181,6 +181,8 @@ export default class Fragments {
 			hidden: []
 		};
 
+		let current_fragment_after_change
+
 		if (slide && this.Reveal.getConfig().fragments) {
 
 			fragments = fragments || this.sort(slide.querySelectorAll('.fragment'));
@@ -216,12 +218,8 @@ export default class Fragments {
 							console.log(el)
 							el.classList.add('current-fragment');
 							this.Reveal.slideContent.startEmbeddedContent(el);
-							this.Reveal.dispatchEvent({
-								type: 'fragmentcurrent',
-								data: {
-									fragment: el,
-								}
-							});
+							current_fragment_after_change = el
+
 						}
 
 						if (!wasVisible) {
@@ -279,6 +277,15 @@ export default class Fragments {
 				data: {
 					fragment: changedFragments.shown[0],
 					fragments: changedFragments.shown
+				}
+			});
+		}
+
+		if (changedFragments.hidden.length || changedFragments.shown.length) {
+			this.Reveal.dispatchEvent({
+				type: 'fragmentcurrent',
+				data: {
+					fragment: current_fragment_after_change,
 				}
 			});
 		}
